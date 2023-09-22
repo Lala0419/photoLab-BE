@@ -1,13 +1,18 @@
 const router = require("express").Router();
 
-module.exports = db => {
-  router.get("/photos", (request, response) => {
-    const protocol = request.protocol;
-    const host = request.hostname;
-    const port = process.env.PORT || 8001;
-    const serverUrl = `${protocol}://${host}:${port}`;
+module.exports = (db) => {
+	router.get("/test", (request, response) => {
+		console.log("it worsk?");
+		response.json("some strings");
+	});
+	router.get("/photos", (request, response) => {
+		const protocol = request.protocol;
+		const host = request.hostname;
+		const port = process.env.PORT || 8001;
+		const serverUrl = `${protocol}://${host}:${port}`;
 
-    db.query(`
+		db.query(
+			`
       SELECT 
       json_agg(
           json_build_object(
@@ -55,10 +60,11 @@ module.exports = db => {
         ) as photo_data
       FROM photo
       JOIN user_account ON user_account.id = photo.user_id;
-    `).then(({ rows }) => {
-      response.json(rows[0].photo_data);
-    });
-  });
+    `
+		).then(({ rows }) => {
+			response.json(rows[0].photo_data);
+		});
+	});
 
-  return router;
+	return router;
 };
