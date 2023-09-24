@@ -1,25 +1,28 @@
 const router = require("express").Router();
 
-module.exports = db => {
-  router.get("/topics", (request, response) => {
-    db.query(`
+module.exports = (db) => {
+	router.get("/topics", (request, response) => {
+		db.query(
+			`
       SELECT 
       topic.id,
       topic.title,
       topic.slug
       FROM topic
-    `).then(({ rows: topics }) => {
-      response.json(topics);
-    });
-  });
-  
-  router.get("/topics/photos/:id", (request, response) => {
-    const protocol = request.protocol;
-    const host = request.hostname;
-    const port = process.env.PORT || 8001;
-    const serverUrl = `${protocol}://${host}:${port}`;
+    `
+		).then(({ rows: topics }) => {
+			response.json(topics);
+		});
+	});
 
-    db.query(`
+	router.get("/topics/photos/:id", (request, response) => {
+		const protocol = request.protocol;
+		const host = request.hostname;
+		const port = process.env.PORT || 8001;
+		const serverUrl = `https://${host}`;
+
+		db.query(
+			`
     SELECT 
       json_agg(
           json_build_object(
@@ -69,10 +72,11 @@ module.exports = db => {
       JOIN photo ON photo.topic_id = topic.id
       JOIN user_account ON user_account.id = photo.user_id
       WHERE topic.id = ${request.params.id}
-    `).then(({ rows }) => {
-      response.json(rows[0].topic_photo_data);
-    });
-  });
+    `
+		).then(({ rows }) => {
+			response.json(rows[0].topic_photo_data);
+		});
+	});
 
-  return router;
+	return router;
 };
